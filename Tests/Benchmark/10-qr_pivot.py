@@ -63,7 +63,9 @@ def test_qr_performance(sizes, num_runs=5):
         torch_cpu_times = []
         torch_wall_times = []
         for _ in range(num_runs):
-            _, cpu_time, wall_time = measure_time(torch_qr, torch_matrix, 1e-8, None, "r")
+            _, cpu_time, wall_time = measure_time(
+                torch_qr, torch_matrix, 1e-8, None, "r"
+            )
             torch_cpu_times.append(cpu_time)
             torch_wall_times.append(wall_time)
 
