@@ -91,3 +91,14 @@ def qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
 
 def qr(A, mode="full"):
     return scipy.linalg.qr(A, mode=QR_MODE_MAPPING[mode], pivoting=False)
+
+
+# index #
+
+from backend._numpy import index_add as numpy_index_add
+from backend._numpy import index_copy as numpy_index_copy
+from backend._numpy import take as numpy_take
+
+index_add = numpy_index_add
+index_copy = numpy_index_copy
+take = numpy_take

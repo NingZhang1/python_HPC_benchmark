@@ -31,3 +31,38 @@ def force_pyscf_lib():
 def disable_pyscf_lib_force():
     global FORCE_PYSCF_LIB
     FORCE_PYSCF_LIB = False
+
+
+# determine which backend to use #
+
+USE_SCIPY = 1
+USE_TORCH = 0
+USE_NUMPY = 0
+USE_TORCH_GPU = 0
+
+
+def backend(backend="scipy"):
+    backend = backend.lower()
+    global USE_SCIPY, USE_TORCH, USE_NUMPY, USE_TORCH_GPU
+    if backend == "scipy":
+        USE_SCIPY = 1
+        USE_TORCH = 0
+        USE_NUMPY = 0
+        USE_TORCH_GPU = 0
+    elif backend == "torch":
+        USE_SCIPY = 0
+        USE_TORCH = 1
+        USE_NUMPY = 0
+        USE_TORCH_GPU = 0
+    elif backend == "numpy":
+        USE_SCIPY = 0
+        USE_TORCH = 0
+        USE_NUMPY = 1
+        USE_TORCH_GPU = 0
+    elif backend == "torch_gpu":
+        USE_SCIPY = 0
+        USE_TORCH = 0
+        USE_NUMPY = 0
+        USE_TORCH_GPU = 1
+    else:
+        raise ValueError("Invalid backend: {}".format(backend))

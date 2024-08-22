@@ -107,3 +107,21 @@ QR_MODE_MAPPING = {
 
 def qr(A, mode="complete"):
     return numpy.linalg.qr(A, mode=QR_MODE_MAPPING[mode])
+
+
+# index #
+
+
+def index_add(A, dim, index, source, alpha=1):
+    A[(slice(None),) * dim + (index,)] += alpha * source
+    return A
+
+
+def index_copy(A, dim, index, source):
+    # equivalent to A[:,:,...,index,...:,...] = source
+    A[(slice(None),) * dim + (index,)] = source
+    return A
+
+
+def take(a, indices, axis=None, out=None):
+    return numpy.take(a, indices, axis=axis, out=out)

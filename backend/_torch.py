@@ -297,3 +297,21 @@ def qr(A, mode="complete"):
     if mode == "r":
         return None, torch.linalg.qr(A, mode=mode)
     return torch.linalg.qr(A, mode=mode)
+
+
+# index #
+
+
+def index_add(A, dim, index, source, alpha=1):
+    A.index_add_(dim, index, source, alpha=alpha)
+    return A
+
+
+def index_copy(A, dim, index, source):
+    # equivalent to A[:,:,...,index,...:,...] = source
+    A.index_copy_(dim, index, source)
+    return A
+
+
+def take(a, indices, axis=None, out=None):
+    return torch.index_select(a, axis, indices, out=out)
