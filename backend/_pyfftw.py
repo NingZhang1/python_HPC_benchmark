@@ -9,7 +9,7 @@ try:
 
     FFTW_FOUND = True
 
-    ################################ interface ################################
+    # interface #
 
     def rfftn(
         x, s=None, axes=None, overwrite_input=False, threads=pyfftw.config.NUM_THREADS

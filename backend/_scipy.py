@@ -1,11 +1,20 @@
 import numpy, scipy
 import backend._pyfftw as _pyfftw
-from backend._config import ENABLE_FFTW
+from backend._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
 
-################# toTensor #################
+if ENABLE_PYSCF_LIB:
+    try:
+        from pyscf import lib
+
+        PYSCF_LIB_FOUND = True
+    except ImportError:
+        PYSCF_LIB_FOUND = False
+
+# toTensor #
 
 
-def toTensor(data):
+def toTensor(data, cpu=True):
+    assert cpu
     return numpy.asarray(data)
 
 
@@ -15,7 +24,7 @@ def toNumpy(data):
     return data
 
 
-################# FFT #################
+# FFT #
 
 
 if _pyfftw.FFTW_FOUND and ENABLE_FFTW:
@@ -42,4 +51,43 @@ else:
         return scipy.fft.ifftn(x, s, axes)
 
 
-################# QR #################
+# matmul #
+
+if ENABLE_PYSCF_LIB and PYSCF_LIB_FOUND:
+
+    def dot(a, b, alpha=1, c=None, beta=0):
+        return lib.dot(a, b, alpha=alpha, c=c, beta=beta)
+
+else:
+
+    def dot(a, b, alpha=1, c=None, beta=0):
+        if c is not None:
+            c *= beta
+            c += alpha * numpy.dot(a, b)
+            return c
+        else:
+            return alpha * numpy.dot(a, b)
+
+
+# QR #
+
+QR_MODE_MAPPING = {
+    "full": "full",
+    "complete": "full",
+    "reduced": "economic",
+    "r": "r",
+    "raw": "raw",
+    "economic": "economic",
+}
+
+
+def qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
+    if mode != "r":
+        return scipy.linalg.qr(A, mode=QR_MODE_MAPPING[mode], pivoting=True)
+    else:
+        r, P = scipy.linalg.qr(A, mode=QR_MODE_MAPPING[mode], pivoting=True)
+        return None, r, P
+
+
+def qr(A, mode="full"):
+    return scipy.linalg.qr(A, mode=QR_MODE_MAPPING[mode], pivoting=False)

@@ -10,9 +10,9 @@ import backend._torch
 
 backend._torch.disable_gpu()
 
-numpy_qr = backend._numpy.qr
-scipy_qr = backend._scipy.qr
-torch_qr = backend._torch.qr
+numpy_qr = backend._numpy.qr_col_pivoting
+scipy_qr = backend._scipy.qr_col_pivoting
+torch_qr = backend._torch.qr_col_pivoting
 
 
 def measure_time(func, *args):
@@ -39,7 +39,7 @@ def test_qr_performance(sizes, num_runs=5):
         numpy_cpu_times = []
         numpy_wall_times = []
         for _ in range(num_runs):
-            _, cpu_time, wall_time = measure_time(numpy_qr, np_matrix)
+            _, cpu_time, wall_time = measure_time(numpy_qr, np_matrix, 1e-8, None, "r")
             numpy_cpu_times.append(cpu_time)
             numpy_wall_times.append(wall_time)
 
@@ -51,7 +51,7 @@ def test_qr_performance(sizes, num_runs=5):
         scipy_cpu_times = []
         scipy_wall_times = []
         for _ in range(num_runs):
-            _, cpu_time, wall_time = measure_time(scipy_qr, np_matrix)
+            _, cpu_time, wall_time = measure_time(scipy_qr, np_matrix, 1e-8, None, "r")
             scipy_cpu_times.append(cpu_time)
             scipy_wall_times.append(wall_time)
 
@@ -63,7 +63,7 @@ def test_qr_performance(sizes, num_runs=5):
         torch_cpu_times = []
         torch_wall_times = []
         for _ in range(num_runs):
-            _, cpu_time, wall_time = measure_time(torch_qr, torch_matrix)
+            _, cpu_time, wall_time = measure_time(torch_qr, torch_matrix, 1e-8, None, "r")
             torch_cpu_times.append(cpu_time)
             torch_wall_times.append(wall_time)
 

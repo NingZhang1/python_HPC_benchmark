@@ -11,9 +11,14 @@ import backend._torch
 
 backend._torch.disable_gpu()
 
-numpy_qr = backend._numpy.qr
-scipy_qr = backend._scipy.qr
-torch_qr = backend._torch.qr
+numpy_qr = backend._numpy.qr_col_pivoting
+scipy_qr = backend._scipy.qr_col_pivoting
+torch_qr = backend._torch.qr_col_pivoting
+
+
+def check_diagonal_descending(r):
+    diag = numpy.abs(numpy.diag(r))
+    return numpy.all(diag[:-1] >= diag[1:])
 
 
 def test_qr_decomposition(sizes):
@@ -26,21 +31,27 @@ def test_qr_decomposition(sizes):
 
         # Test numpy_qr
         print("Testing numpy_qr:")
-        np_q, np_r = numpy_qr(np_matrix)
-        check_qr_result(np_matrix, np_q, np_r, "numpy_qr")
+        np_q, np_r, P = numpy_qr(np_matrix, mode="full")
+        check_qr_result(np_matrix, np_q, np_r, P, "numpy_qr_col_pivoting")
 
         # Test scipy_qr
         print("Testing scipy_qr:")
-        sp_q, sp_r = scipy_qr(np_matrix)
-        check_qr_result(np_matrix, sp_q, sp_r, "scipy_qr")
+        sp_q, sp_r, P = scipy_qr(np_matrix, mode="full")
+        check_qr_result(np_matrix, sp_q, sp_r, P, "scipy_qr_col_pivoting")
 
         # Test torch_qr
         print("Testing torch_qr:")
-        torch_q, torch_r = torch_qr(torch_matrix)
-        check_qr_result(np_matrix, torch_q.numpy(), torch_r.numpy(), "torch_qr")
+        torch_q, torch_r, P = torch_qr(torch_matrix, mode="full")
+        check_qr_result(
+            np_matrix,
+            torch_q.numpy(),
+            torch_r.numpy(),
+            P.numpy(),
+            "torch_qr_col_pivoting",
+        )
 
 
-def check_qr_result(original, q, r, function_name):
+def check_qr_result(original, q, r, P, function_name):
     # Check shapes
     m, n = original.shape
     if q.shape != (m, m):
@@ -56,11 +67,24 @@ def check_qr_result(original, q, r, function_name):
     if not numpy.allclose(numpy.triu(r), r, atol=1e-6):
         print(f"  {function_name} error: R is not upper triangular")
 
+    # Check if diagonal elements of R are in descending order by absolute value
+    if check_diagonal_descending(r):
+        print(
+            f"  {function_name}: R diagonal elements are in descending order by absolute value"
+        )
+    else:
+        print(
+            f"  {function_name} error: R diagonal elements are not in descending order by absolute value"
+        )
+
     # Check reconstruction
     reconstructed = numpy.dot(q, r)
-    if not numpy.allclose(original, reconstructed, atol=1e-6):
+    reconstructed2 = numpy.zeros_like(original)
+    reconstructed2[:, P] = reconstructed.copy()
+
+    if not numpy.allclose(original, reconstructed2, atol=1e-6):
         print(
-            f"  {function_name} error: A ≠ QR, max difference: {numpy.max(numpy.abs(original - reconstructed))}"
+            f"  {function_name} error: A ≠ QR, max difference: {numpy.max(numpy.abs(original - reconstructed2))}"
         )
     else:
         print(f"  {function_name}: QR decomposition is correct")
