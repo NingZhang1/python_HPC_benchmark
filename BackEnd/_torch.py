@@ -3,6 +3,8 @@ import BackEnd._pyfftw as _pyfftw
 from BackEnd._config import ENABLE_FFTW, FORCE_PYSCF_LIB
 from BackEnd._malloc import __malloc
 
+# configuration specific to torch backend #
+
 USE_GPU = True
 FFT_CPU_USE_TORCH_ANYWAY = False
 QR_PIVOTING_GPU_ANYWAY = False
@@ -42,10 +44,18 @@ torch.set_grad_enabled(False)
 
 
 def toTensor(data, cpu=True):
-    if USE_GPU and not cpu:
+    if isinstance(data, torch.Tensor):
+        if data.is_cuda and cpu:
+            return data.cpu()
+        elif not data.is_cuda and not cpu:
+            return data.cuda()
+        return data
+    assert isinstance(data, numpy.ndarray)
+    if USE_GPU and not cpu:  # use GPU, copy anyway
         return torch.tensor(data, device="cuda")
     else:
-        return torch.tensor(data, device="cpu")
+        # return torch.tensor(data, device="cpu")
+        return torch.from_numpy(data)  # avoid copy
 
 
 def toNumpy(data):
@@ -424,11 +434,14 @@ def cholesky(a, lower=True, overwrite_a=True, out=None):
 # solve #
 
 
+# NOTE: at least in my machine, no matter whether overwrite_a is True or False, it will always allocate a new tensor
 def solve_cholesky(
     a, b, lower=True, overwrite_a=True, overwrite_b=True, check_finite=False
 ):
     c = cholesky(a, lower=lower, overwrite_a=overwrite_a)
     if overwrite_b:
-        return torch.linalg.solve(c, b, upper=(not lower), out=b)
+        b = torch.linalg.solve_triangular(c, b, upper=(not lower), out=b)
+        return torch.linalg.solve_triangular(c.T, b, upper=lower, out=b)
     else:
-        return torch.linalg.solve(c, b, upper=(not lower))
+        y = torch.linalg.solve_triangular(c, b, upper=(not lower))
+        return torch.linalg.solve_triangular(c.T, y, upper=lower, out=y)

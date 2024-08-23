@@ -197,9 +197,15 @@ def square_(a):
 
 # cholesky #
 
+try:
+    from BackEnd._scipy import cholesky as scipy_cholesky
 
-def cholesky(a, lower=True, overwrite_a=True, out=None):
-    return numpy.linalg.cholesky(a)
+    cholesky = scipy_cholesky
+
+except ImportError:
+
+    def cholesky(a, lower=True, overwrite_a=True, out=None):
+        return numpy.linalg.cholesky(a)
 
 
 # solve #

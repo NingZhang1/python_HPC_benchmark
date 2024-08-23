@@ -1,18 +1,12 @@
 import numpy
 import torch
-
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
-
 import BackEnd._numpy
-import BackEnd._scipy
 import BackEnd._torch
 
-BackEnd._torch.disable_gpu()
-
 numpy_qr = BackEnd._numpy.qr_col_pivoting
-scipy_qr = BackEnd._scipy.qr_col_pivoting
 torch_qr = BackEnd._torch.qr_col_pivoting
 
 
@@ -21,37 +15,37 @@ def check_diagonal_descending(r):
     return numpy.all(diag[:-1] >= diag[1:])
 
 
-def test_qr_decomposition(sizes):
+def test_qr_decomposition(sizes, device="cpu"):
+    print(f"\nTesting on {device}")
     for m, n in sizes:
         print(f"Testing matrix of size {m}x{n}")
 
         # Create a random matrix
         np_matrix = numpy.random.rand(m, n)
-        torch_matrix = torch.from_numpy(np_matrix)
+        torch_matrix = torch.tensor(np_matrix, device=device)
 
         # Test numpy_qr
         print("Testing numpy_qr:")
-        np_q, np_r, P = numpy_qr(np_matrix, mode="full")
-        check_qr_result(np_matrix, np_q, np_r, P, "numpy_qr_col_pivoting")
-
-        # Test scipy_qr
-        print("Testing scipy_qr:")
-        sp_q, sp_r, P = scipy_qr(np_matrix, mode="full")
-        check_qr_result(np_matrix, sp_q, sp_r, P, "scipy_qr_col_pivoting")
+        np_q, np_r, np_P = numpy_qr(np_matrix, mode="full")
+        check_qr_result(np_matrix, np_q, np_r, np_P, "numpy_qr_col_pivoting", "cpu")
 
         # Test torch_qr
         print("Testing torch_qr:")
-        torch_q, torch_r, P = torch_qr(torch_matrix, mode="full")
+        torch_q, torch_r, torch_P = torch_qr(torch_matrix, mode="full")
+        assert torch_q.device == torch_matrix.device
+        assert torch_r.device == torch_matrix.device
+        assert torch_P.device == torch_matrix.device
         check_qr_result(
             np_matrix,
-            torch_q.numpy(),
-            torch_r.numpy(),
-            P.numpy(),
+            torch_q.cpu().numpy(),
+            torch_r.cpu().numpy(),
+            torch_P.cpu().numpy(),
             "torch_qr_col_pivoting",
+            device,
         )
 
 
-def check_qr_result(original, q, r, P, function_name):
+def check_qr_result(original, q, r, P, function_name, device):
     # Check shapes
     m, n = original.shape
     if q.shape != (m, m):
@@ -89,7 +83,22 @@ def check_qr_result(original, q, r, P, function_name):
     else:
         print(f"  {function_name}: QR decomposition is correct")
 
+    # Check types and device
+    if function_name.startswith("torch"):
+        print(f"  {function_name}: Q type: {type(q).__name__}, device: {device}")
+        print(f"  {function_name}: R type: {type(r).__name__}, device: {device}")
+        print(f"  {function_name}: P type: {type(P).__name__}, device: {device}")
+
 
 # Test with different matrix sizes, including non-square matrices
 matrix_sizes = [(10, 10), (100, 100), (50, 75), (75, 50)]
-test_qr_decomposition(matrix_sizes)
+
+if __name__ == "__main__":
+    # CPU test
+    test_qr_decomposition(matrix_sizes, "cpu")
+
+    # GPU test
+    if torch.cuda.is_available():
+        test_qr_decomposition(matrix_sizes, "cuda")
+    else:
+        print("\nCUDA is not available. GPU test skipped.")
