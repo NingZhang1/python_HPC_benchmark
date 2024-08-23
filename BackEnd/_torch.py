@@ -51,6 +51,7 @@ def malloc(shape, dtype, buf=None, offset=0, gpu=False):
         assert offset is None or offset == 0
         return torch.empty(shape, dtype=dtype, device="cuda" if gpu else "cpu")
     else:
+        assert isinstance(buf, torch.Tensor)
         if gpu:
             assert buf.is_cuda
         else:
