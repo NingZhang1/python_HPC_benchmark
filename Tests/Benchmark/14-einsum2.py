@@ -8,9 +8,9 @@ import BackEnd._scipy
 import BackEnd._numpy
 import BackEnd._torch
 
-numpy_einsum_ij_j_ij = BackEnd._numpy.einsum_ij_j_ij
-scipy_einsum_ij_j_ij = BackEnd._scipy.einsum_ij_j_ij
-torch_einsum_ij_j_ij = BackEnd._torch.einsum_ij_j_ij
+numpy_einsum_i_ij_ij = BackEnd._numpy.einsum_i_ij_ij
+scipy_einsum_i_ij_ij = BackEnd._scipy.einsum_i_ij_ij
+torch_einsum_i_ij_ij = BackEnd._torch.einsum_i_ij_ij
 
 
 def generate_test_cases():
@@ -20,12 +20,12 @@ def generate_test_cases():
         (100, 50),  # Medium
         (1000, 500),  # Large
         (5000, 2000),  # Very large
-        (2000, 20000),
+        (10000, 5000),  # Extreme
     ]
     test_cases = []
     for i, j in sizes:
-        a_np = np.random.rand(i, j)
-        b_np = np.random.rand(j)
+        a_np = np.random.rand(i)
+        b_np = np.random.rand(i, j)
         a_torch = torch.from_numpy(a_np)
         b_torch = torch.from_numpy(b_np)
         out_np = np.empty((i, j))
@@ -88,17 +88,17 @@ def run_performance_test(test_cases, num_runs=100):
     implementations = [
         (
             "NumPy Einsum",
-            lambda a, b, out: numpy_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: numpy_einsum_i_ij_ij(a, b, out=out),
             measure_time_cpu,
         ),
         (
             "SciPy Einsum",
-            lambda a, b, out: scipy_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: scipy_einsum_i_ij_ij(a, b, out=out),
             measure_time_cpu,
         ),
         (
             "PyTorch Einsum (CPU)",
-            lambda a, b, out: torch_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: torch_einsum_i_ij_ij(a, b, out=out),
             measure_time_cpu,
         ),
     ]
@@ -107,7 +107,7 @@ def run_performance_test(test_cases, num_runs=100):
         implementations.append(
             (
                 "PyTorch Einsum (GPU)",
-                lambda a, b, out: torch_einsum_ij_j_ij(a, b, out=out),
+                lambda a, b, out: torch_einsum_i_ij_ij(a, b, out=out),
                 measure_time_gpu,
             )
         )

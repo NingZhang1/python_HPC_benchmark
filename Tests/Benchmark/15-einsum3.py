@@ -8,38 +8,47 @@ import BackEnd._scipy
 import BackEnd._numpy
 import BackEnd._torch
 
-numpy_einsum_ij_j_ij = BackEnd._numpy.einsum_ij_j_ij
-scipy_einsum_ij_j_ij = BackEnd._scipy.einsum_ij_j_ij
-torch_einsum_ij_j_ij = BackEnd._torch.einsum_ij_j_ij
+numpy_einsum_ik_jk_ijk = BackEnd._numpy.einsum_ik_jk_ijk
+scipy_einsum_ik_jk_ijk = BackEnd._scipy.einsum_ik_jk_ijk
+torch_einsum_ik_jk_ijk = BackEnd._torch.einsum_ik_jk_ijk
 
 
 def generate_test_cases():
     """Generate test cases of different sizes"""
     sizes = [
-        (10, 5),  # Small
-        (100, 50),  # Medium
-        (1000, 500),  # Large
-        (5000, 2000),  # Very large
-        (2000, 20000),
+        (10, 15, 20),  # Small
+        (50, 60, 70),  # Medium
+        (100, 120, 140),  # Large
+        (200, 250, 300),  # Very large
+        (500, 600, 700),  # Extreme
     ]
     test_cases = []
-    for i, j in sizes:
-        a_np = np.random.rand(i, j)
-        b_np = np.random.rand(j)
+    for i, j, k in sizes:
+        a_np = np.random.rand(i, k)
+        b_np = np.random.rand(j, k)
         a_torch = torch.from_numpy(a_np)
         b_torch = torch.from_numpy(b_np)
-        out_np = np.empty((i, j))
-        out_torch = torch.empty((i, j))
+        out_np = np.empty((i, j, k))
+        out_torch = torch.empty((i, j, k))
         out_torch_gpu = (
-            torch.empty((i, j), device="cuda") if torch.cuda.is_available() else None
+            torch.empty((i, j, k), device="cuda") if torch.cuda.is_available() else None
         )
         test_cases.append(
-            (a_np, b_np, a_torch, b_torch, out_np, out_torch, out_torch_gpu, f"{i}x{j}")
+            (
+                a_np,
+                b_np,
+                a_torch,
+                b_torch,
+                out_np,
+                out_torch,
+                out_torch_gpu,
+                f"{i}x{j}x{k}",
+            )
         )
     return test_cases
 
 
-def measure_time_cpu(func, *args, num_runs=100):
+def measure_time_cpu(func, *args, num_runs=10):
     """Measure both CPU time and wall time for a function"""
     # Warm-up run
     func(*args)
@@ -60,7 +69,7 @@ def measure_time_cpu(func, *args, num_runs=100):
     return cpu_time, wall_time
 
 
-def measure_time_gpu(func, *args, num_runs=100):
+def measure_time_gpu(func, *args, num_runs=10):
     """Measure GPU time for a function"""
     # Warm-up run
     for _ in range(5):
@@ -83,22 +92,22 @@ def measure_time_gpu(func, *args, num_runs=100):
     return gpu_time, gpu_time
 
 
-def run_performance_test(test_cases, num_runs=100):
+def run_performance_test(test_cases, num_runs=10):
     """Run performance test for each implementation"""
     implementations = [
         (
             "NumPy Einsum",
-            lambda a, b, out: numpy_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: numpy_einsum_ik_jk_ijk(a, b, out=out),
             measure_time_cpu,
         ),
         (
             "SciPy Einsum",
-            lambda a, b, out: scipy_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: scipy_einsum_ik_jk_ijk(a, b, out=out),
             measure_time_cpu,
         ),
         (
             "PyTorch Einsum (CPU)",
-            lambda a, b, out: torch_einsum_ij_j_ij(a, b, out=out),
+            lambda a, b, out: torch_einsum_ik_jk_ijk(a, b, out=out),
             measure_time_cpu,
         ),
     ]
@@ -107,7 +116,7 @@ def run_performance_test(test_cases, num_runs=100):
         implementations.append(
             (
                 "PyTorch Einsum (GPU)",
-                lambda a, b, out: torch_einsum_ij_j_ij(a, b, out=out),
+                lambda a, b, out: torch_einsum_ik_jk_ijk(a, b, out=out),
                 measure_time_gpu,
             )
         )

@@ -8,9 +8,9 @@ import BackEnd._scipy
 import BackEnd._numpy
 import BackEnd._torch
 
-numpy_solve_cholesky = BackEnd._numpy.solve_cholesky
-scipy_solve_cholesky = BackEnd._scipy.solve_cholesky
-torch_solve_cholesky = BackEnd._torch.solve_cholesky
+numpy_cholesky = BackEnd._numpy.cholesky
+scipy_cholesky = BackEnd._scipy.cholesky
+torch_cholesky = BackEnd._torch.cholesky
 
 
 def measure_time_cpu(func, *args):
@@ -49,78 +49,73 @@ def create_positive_definite_matrix(n):
     return numpy.dot(A, A.T)
 
 
-def test_solve_cholesky_performance(sizes, num_runs=5):
-    for n, m in sizes:
-        print(f"\nTesting performance for A: {n}x{n}, B: {n}x{m}")
+def test_cholesky_performance(sizes, num_runs=5):
+    for n in sizes:
+        print(f"\nTesting performance for matrix size {n}x{n}")
 
-        # Create a random positive definite matrix A and a random matrix B
-        A = create_positive_definite_matrix(n)
-        B = numpy.random.rand(n, m)
+        # Create a random positive definite matrix
+        np_matrix = create_positive_definite_matrix(n)
+        torch_matrix = torch.from_numpy(np_matrix)
 
-        # Convert to PyTorch tensors
-        A_torch = torch.from_numpy(A)
-        B_torch = torch.from_numpy(B)
-
-        # Test numpy_solve_cholesky
+        # Test numpy_cholesky
         numpy_cpu_times = []
         numpy_wall_times = []
         for _ in range(num_runs):
             _, cpu_time, wall_time = measure_time_cpu(
-                numpy_solve_cholesky, A.copy(), B.copy()
+                numpy_cholesky, np_matrix, True, False, None
             )
             numpy_cpu_times.append(cpu_time)
             numpy_wall_times.append(wall_time)
 
         print(
-            f"numpy_solve_cholesky: Avg CPU time: {numpy.mean(numpy_cpu_times):.6f}s, Avg Wall time: {numpy.mean(numpy_wall_times):.6f}s"
+            f"numpy_cholesky: Avg CPU time: {numpy.mean(numpy_cpu_times):.6f}s, Avg Wall time: {numpy.mean(numpy_wall_times):.6f}s"
         )
 
-        # Test scipy_solve_cholesky
+        # Test scipy_cholesky
         scipy_cpu_times = []
         scipy_wall_times = []
         for _ in range(num_runs):
             _, cpu_time, wall_time = measure_time_cpu(
-                scipy_solve_cholesky, A.copy(), B.copy()
+                scipy_cholesky, np_matrix, True, False, None
             )
             scipy_cpu_times.append(cpu_time)
             scipy_wall_times.append(wall_time)
 
         print(
-            f"scipy_solve_cholesky: Avg CPU time: {numpy.mean(scipy_cpu_times):.6f}s, Avg Wall time: {numpy.mean(scipy_wall_times):.6f}s"
+            f"scipy_cholesky: Avg CPU time: {numpy.mean(scipy_cpu_times):.6f}s, Avg Wall time: {numpy.mean(scipy_wall_times):.6f}s"
         )
 
-        # Test torch_solve_cholesky on CPU
+        # Test torch_cholesky on CPU
         torch_cpu_times = []
         torch_wall_times = []
         for _ in range(num_runs):
             _, cpu_time, wall_time = measure_time_cpu(
-                torch_solve_cholesky, A_torch.clone(), B_torch.clone()
+                torch_cholesky, torch_matrix, True, False, None
             )
             torch_cpu_times.append(cpu_time)
             torch_wall_times.append(wall_time)
 
         print(
-            f"torch_solve_cholesky (CPU): Avg CPU time: {numpy.mean(torch_cpu_times):.6f}s, Avg Wall time: {numpy.mean(torch_wall_times):.6f}s"
+            f"torch_cholesky (CPU): Avg CPU time: {numpy.mean(torch_cpu_times):.6f}s, Avg Wall time: {numpy.mean(torch_wall_times):.6f}s"
         )
 
-        # Test torch_solve_cholesky on GPU
+        # Test torch_cholesky on GPU
         if torch.cuda.is_available():
-            A_torch_gpu = A_torch.cuda()
-            B_torch_gpu = B_torch.cuda()
+            torch_matrix_gpu = torch_matrix.cuda()
             torch_gpu_times = []
             for _ in range(num_runs):
                 _, gpu_time, _ = measure_time_gpu(
-                    torch_solve_cholesky, A_torch_gpu.clone(), B_torch_gpu.clone()
+                    torch_cholesky, torch_matrix_gpu, True, False, None
                 )
                 torch_gpu_times.append(gpu_time)
 
             print(
-                f"torch_solve_cholesky (GPU): Avg GPU time: {numpy.mean(torch_gpu_times):.6f}s"
+                f"torch_cholesky (GPU): Avg GPU time: {numpy.mean(torch_gpu_times):.6f}s"
             )
         else:
             print("CUDA is not available. Skipping GPU test.")
 
 
 # Test with different matrix sizes
-matrix_sizes = [(100, 10), (500, 50), (1000, 100), (2000, 200), (5000, 500)]
-test_solve_cholesky_performance(matrix_sizes)
+matrix_sizes = [100, 500, 1000, 2000, 5000]
+test_cholesky_performance(matrix_sizes)
