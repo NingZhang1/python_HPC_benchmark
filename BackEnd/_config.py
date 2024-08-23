@@ -2,6 +2,42 @@ ENABLE_FFTW = True
 ENABLE_PYSCF_LIB = True
 FORCE_PYSCF_LIB = False
 
+# configuration specific to torch backend #
+
+USE_GPU = True
+FFT_CPU_USE_TORCH_ANYWAY = False
+QR_PIVOTING_GPU_ANYWAY = False
+
+
+def disable_gpu():
+    global USE_GPU
+    USE_GPU = False
+
+
+def enable_gpu():
+    global USE_GPU
+    USE_GPU = True
+
+
+def enable_torch_fft_cpu():
+    global FFT_CPU_USE_TORCH_ANYWAY
+    FFT_CPU_USE_TORCH_ANYWAY = True
+
+
+def disable_torch_fft_cpu():
+    global FFT_CPU_USE_TORCH_ANYWAY
+    FFT_CPU_USE_TORCH_ANYWAY = False
+
+
+def enable_torch_gpu_qr_pivoting():
+    global QR_PIVOTING_GPU_ANYWAY
+    QR_PIVOTING_GPU_ANYWAY = True
+
+
+def disable_torch_gpu_qr_pivoting():
+    global QR_PIVOTING_GPU_ANYWAY
+    QR_PIVOTING_GPU_ANYWAY = False
+
 
 def enable_fftw():
     global ENABLE_FFTW

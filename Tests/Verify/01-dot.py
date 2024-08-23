@@ -3,11 +3,12 @@ import torch
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
-import BackEnd._numpy
+BackEnd._config.disable_gpu()
+
 import BackEnd._scipy
+import BackEnd._numpy
 import BackEnd._torch
 
-BackEnd._torch.disable_gpu()
 
 numpy_dot = BackEnd._numpy.dot
 scipy_dot = BackEnd._scipy.dot

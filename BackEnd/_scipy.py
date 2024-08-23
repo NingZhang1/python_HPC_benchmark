@@ -98,6 +98,7 @@ def qr(A, mode="full"):
 
 # index #
 
+
 from BackEnd._numpy import index_add as numpy_index_add
 from BackEnd._numpy import index_copy as numpy_index_copy
 from BackEnd._numpy import take as numpy_take
@@ -105,6 +106,7 @@ from BackEnd._numpy import take as numpy_take
 index_add = numpy_index_add
 index_copy = numpy_index_copy
 take = numpy_take
+
 
 # min/max/abs/norm #
 

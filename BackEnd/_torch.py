@@ -1,33 +1,13 @@
 import torch, numpy, scipy
 import BackEnd._pyfftw as _pyfftw
-from BackEnd._config import ENABLE_FFTW, FORCE_PYSCF_LIB
+from BackEnd._config import (
+    ENABLE_FFTW,
+    FORCE_PYSCF_LIB,
+    USE_GPU,
+    FFT_CPU_USE_TORCH_ANYWAY,
+    QR_PIVOTING_GPU_ANYWAY,
+)
 from BackEnd._malloc import __malloc
-
-# configuration specific to torch backend #
-
-USE_GPU = True
-FFT_CPU_USE_TORCH_ANYWAY = False
-QR_PIVOTING_GPU_ANYWAY = False
-
-
-def disable_gpu():
-    global USE_GPU
-    USE_GPU = False
-
-
-def enable_gpu():
-    global USE_GPU
-    USE_GPU = True
-
-
-def enable_fft_cpu():
-    global FFT_CPU_USE_TORCH_ANYWAY
-    FFT_CPU_USE_TORCH_ANYWAY = True
-
-
-def disable_fft_cpu():
-    global FFT_CPU_USE_TORCH_ANYWAY
-    FFT_CPU_USE_TORCH_ANYWAY = False
 
 
 if FORCE_PYSCF_LIB:
@@ -55,6 +35,7 @@ def toTensor(data, cpu=True):
         return torch.tensor(data, device="cuda")
     else:
         # return torch.tensor(data, device="cpu")
+        # print("return from here no copy")
         return torch.from_numpy(data)  # avoid copy
 
 
@@ -316,7 +297,10 @@ try:
 
 except ImportError:
 
+    raise ImportError("scipy is required for QR decomposition with pivoting on CPU")
+
     def qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
+        print("qr_col_pivoting2 is called in torch")
         return _qr_col_pivoting(A, tol=tol, max_rank=max_rank, mode=mode)
 
 

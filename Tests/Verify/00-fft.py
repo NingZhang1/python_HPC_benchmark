@@ -4,13 +4,13 @@ import torch
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
+BackEnd._config.disable_gpu()
 
-import BackEnd._numpy
 import BackEnd._scipy
+import BackEnd._numpy
 import BackEnd._pyfftw
 import BackEnd._torch
 
-BackEnd._torch.disable_gpu()
 
 m, n, k = 13, 17, 19
 

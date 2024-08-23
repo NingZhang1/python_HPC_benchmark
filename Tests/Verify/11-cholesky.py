@@ -4,8 +4,8 @@ import torch
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
-import BackEnd._numpy
 import BackEnd._scipy
+import BackEnd._numpy
 import BackEnd._torch
 
 numpy_cholesky = BackEnd._numpy.cholesky

@@ -1,14 +1,12 @@
 import numpy as np
 import torch
 import BackEnd._config
+import time
 
 BackEnd._config.disable_fftw()
-import BackEnd._numpy
 import BackEnd._scipy
+import BackEnd._numpy
 import BackEnd._torch
-
-BackEnd._torch.disable_gpu()
-import time
 
 numpy_index_add = BackEnd._numpy.index_add
 scipy_index_add = BackEnd._scipy.index_add
@@ -23,7 +21,7 @@ scipy_take = BackEnd._scipy.take
 torch_take = BackEnd._torch.take
 
 
-def measure_time(func, *args, **kwargs):
+def measure_time_cpu(func, *args, **kwargs):
     start_cpu = time.process_time()
     start_wall = time.perf_counter()
 
@@ -33,6 +31,25 @@ def measure_time(func, *args, **kwargs):
     end_wall = time.perf_counter()
 
     return result, end_cpu - start_cpu, end_wall - start_wall
+
+
+def measure_time_gpu(func, *args, **kwargs):
+    # Warm-up
+    for _ in range(5):
+        func(*args, **kwargs)
+
+    torch.cuda.synchronize()
+    start_event = torch.cuda.Event(enable_timing=True)
+    end_event = torch.cuda.Event(enable_timing=True)
+
+    start_event.record()
+    result = func(*args, **kwargs)
+    end_event.record()
+
+    torch.cuda.synchronize()
+    elapsed_time = start_event.elapsed_time(end_event) / 1000  # Convert to seconds
+
+    return result, elapsed_time, elapsed_time
 
 
 def performance_test_index_add(A, dim, index, source, alpha=1, num_runs=10):
@@ -46,50 +63,45 @@ def performance_test_index_add(A, dim, index, source, alpha=1, num_runs=10):
     source_torch = torch.from_numpy(source)
     index_torch = torch.from_numpy(index)
 
-    # NumPy performance
-    np_cpu_times = []
-    np_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_np.copy()
-        _, cpu_time, wall_time = measure_time(
-            numpy_index_add, A_test, dim, index, source, alpha=alpha
+    # CPU tests
+    for name, func, a, s, i in [
+        ("NumPy", numpy_index_add, A_np, source, index),
+        ("SciPy", scipy_index_add, A_sp, source, index),
+        ("PyTorch (CPU)", torch_index_add, A_torch, source_torch, index_torch),
+    ]:
+        cpu_times = []
+        wall_times = []
+        for _ in range(num_runs):
+            A_test = a.copy() if isinstance(a, np.ndarray) else a.clone()
+            _, cpu_time, wall_time = measure_time_cpu(
+                func, A_test, dim, i, s, alpha=alpha
+            )
+            cpu_times.append(cpu_time)
+            wall_times.append(wall_time)
+        print(
+            f"{name} index_add: Avg CPU time: {np.mean(cpu_times):.6f}s, Avg Wall time: {np.mean(wall_times):.6f}s"
         )
-        np_cpu_times.append(cpu_time)
-        np_wall_times.append(wall_time)
 
-    print(
-        f"NumPy index_add: Avg CPU time: {np.mean(np_cpu_times):.6f}s, Avg Wall time: {np.mean(np_wall_times):.6f}s"
-    )
-
-    # SciPy performance
-    sp_cpu_times = []
-    sp_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_sp.copy()
-        _, cpu_time, wall_time = measure_time(
-            scipy_index_add, A_test, dim, index, source, alpha=alpha
-        )
-        sp_cpu_times.append(cpu_time)
-        sp_wall_times.append(wall_time)
-
-    print(
-        f"SciPy index_add: Avg CPU time: {np.mean(sp_cpu_times):.6f}s, Avg Wall time: {np.mean(sp_wall_times):.6f}s"
-    )
-
-    # PyTorch performance
-    torch_cpu_times = []
-    torch_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_torch.clone()
-        _, cpu_time, wall_time = measure_time(
-            torch_index_add, A_test, dim, index_torch, source_torch, alpha=alpha
-        )
-        torch_cpu_times.append(cpu_time)
-        torch_wall_times.append(wall_time)
-
-    print(
-        f"PyTorch index_add: Avg CPU time: {np.mean(torch_cpu_times):.6f}s, Avg Wall time: {np.mean(torch_wall_times):.6f}s"
-    )
+    # GPU test
+    if torch.cuda.is_available():
+        A_torch_gpu = A_torch.cuda()
+        source_torch_gpu = source_torch.cuda()
+        index_torch_gpu = index_torch.cuda()
+        gpu_times = []
+        for _ in range(num_runs):
+            A_test = A_torch_gpu.clone()
+            _, gpu_time, _ = measure_time_gpu(
+                torch_index_add,
+                A_test,
+                dim,
+                index_torch_gpu,
+                source_torch_gpu,
+                alpha=alpha,
+            )
+            gpu_times.append(gpu_time)
+        print(f"PyTorch (GPU) index_add: Avg GPU time: {np.mean(gpu_times):.6f}s")
+    else:
+        print("CUDA is not available. Skipping GPU test.")
 
 
 def performance_test_index_copy(A, dim, index, source, num_runs=10):
@@ -103,50 +115,38 @@ def performance_test_index_copy(A, dim, index, source, num_runs=10):
     source_torch = torch.from_numpy(source)
     index_torch = torch.from_numpy(index)
 
-    # NumPy performance
-    np_cpu_times = []
-    np_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_np.copy()
-        _, cpu_time, wall_time = measure_time(
-            numpy_index_copy, A_test, dim, index, source
+    # CPU tests
+    for name, func, a, s, i in [
+        ("NumPy", numpy_index_copy, A_np, source, index),
+        ("SciPy", scipy_index_copy, A_sp, source, index),
+        ("PyTorch (CPU)", torch_index_copy, A_torch, source_torch, index_torch),
+    ]:
+        cpu_times = []
+        wall_times = []
+        for _ in range(num_runs):
+            A_test = a.copy() if isinstance(a, np.ndarray) else a.clone()
+            _, cpu_time, wall_time = measure_time_cpu(func, A_test, dim, i, s)
+            cpu_times.append(cpu_time)
+            wall_times.append(wall_time)
+        print(
+            f"{name} index_copy: Avg CPU time: {np.mean(cpu_times):.6f}s, Avg Wall time: {np.mean(wall_times):.6f}s"
         )
-        np_cpu_times.append(cpu_time)
-        np_wall_times.append(wall_time)
 
-    print(
-        f"NumPy index_copy: Avg CPU time: {np.mean(np_cpu_times):.6f}s, Avg Wall time: {np.mean(np_wall_times):.6f}s"
-    )
-
-    # SciPy performance
-    sp_cpu_times = []
-    sp_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_sp.copy()
-        _, cpu_time, wall_time = measure_time(
-            scipy_index_copy, A_test, dim, index, source
-        )
-        sp_cpu_times.append(cpu_time)
-        sp_wall_times.append(wall_time)
-
-    print(
-        f"SciPy index_copy: Avg CPU time: {np.mean(sp_cpu_times):.6f}s, Avg Wall time: {np.mean(sp_wall_times):.6f}s"
-    )
-
-    # PyTorch performance
-    torch_cpu_times = []
-    torch_wall_times = []
-    for _ in range(num_runs):
-        A_test = A_torch.clone()
-        _, cpu_time, wall_time = measure_time(
-            torch_index_copy, A_test, dim, index_torch, source_torch
-        )
-        torch_cpu_times.append(cpu_time)
-        torch_wall_times.append(wall_time)
-
-    print(
-        f"PyTorch index_copy: Avg CPU time: {np.mean(torch_cpu_times):.6f}s, Avg Wall time: {np.mean(torch_wall_times):.6f}s"
-    )
+    # GPU test
+    if torch.cuda.is_available():
+        A_torch_gpu = A_torch.cuda()
+        source_torch_gpu = source_torch.cuda()
+        index_torch_gpu = index_torch.cuda()
+        gpu_times = []
+        for _ in range(num_runs):
+            A_test = A_torch_gpu.clone()
+            _, gpu_time, _ = measure_time_gpu(
+                torch_index_copy, A_test, dim, index_torch_gpu, source_torch_gpu
+            )
+            gpu_times.append(gpu_time)
+        print(f"PyTorch (GPU) index_copy: Avg GPU time: {np.mean(gpu_times):.6f}s")
+    else:
+        print("CUDA is not available. Skipping GPU test.")
 
 
 def performance_test_take(a, indices, axis=None, num_runs=10):
@@ -157,43 +157,35 @@ def performance_test_take(a, indices, axis=None, num_runs=10):
     a_torch = torch.from_numpy(a)
     indices_torch = torch.from_numpy(indices)
 
-    # NumPy performance
-    np_cpu_times = []
-    np_wall_times = []
-    for _ in range(num_runs):
-        _, cpu_time, wall_time = measure_time(numpy_take, a, indices, axis=axis)
-        np_cpu_times.append(cpu_time)
-        np_wall_times.append(wall_time)
-
-    print(
-        f"NumPy take: Avg CPU time: {np.mean(np_cpu_times):.6f}s, Avg Wall time: {np.mean(np_wall_times):.6f}s"
-    )
-
-    # SciPy performance
-    sp_cpu_times = []
-    sp_wall_times = []
-    for _ in range(num_runs):
-        _, cpu_time, wall_time = measure_time(scipy_take, a, indices, axis=axis)
-        sp_cpu_times.append(cpu_time)
-        sp_wall_times.append(wall_time)
-
-    print(
-        f"SciPy take: Avg CPU time: {np.mean(sp_cpu_times):.6f}s, Avg Wall time: {np.mean(sp_wall_times):.6f}s"
-    )
-
-    # PyTorch performance
-    torch_cpu_times = []
-    torch_wall_times = []
-    for _ in range(num_runs):
-        _, cpu_time, wall_time = measure_time(
-            torch_take, a_torch, indices_torch, axis=axis
+    # CPU tests
+    for name, func, arr, ind in [
+        ("NumPy", numpy_take, a, indices),
+        ("SciPy", scipy_take, a, indices),
+        ("PyTorch (CPU)", torch_take, a_torch, indices_torch),
+    ]:
+        cpu_times = []
+        wall_times = []
+        for _ in range(num_runs):
+            _, cpu_time, wall_time = measure_time_cpu(func, arr, ind, axis=axis)
+            cpu_times.append(cpu_time)
+            wall_times.append(wall_time)
+        print(
+            f"{name} take: Avg CPU time: {np.mean(cpu_times):.6f}s, Avg Wall time: {np.mean(wall_times):.6f}s"
         )
-        torch_cpu_times.append(cpu_time)
-        torch_wall_times.append(wall_time)
 
-    print(
-        f"PyTorch take: Avg CPU time: {np.mean(torch_cpu_times):.6f}s, Avg Wall time: {np.mean(torch_wall_times):.6f}s"
-    )
+    # GPU test
+    if torch.cuda.is_available():
+        a_torch_gpu = a_torch.cuda()
+        indices_torch_gpu = indices_torch.cuda()
+        gpu_times = []
+        for _ in range(num_runs):
+            _, gpu_time, _ = measure_time_gpu(
+                torch_take, a_torch_gpu, indices_torch_gpu, axis=axis
+            )
+            gpu_times.append(gpu_time)
+        print(f"PyTorch (GPU) take: Avg GPU time: {np.mean(gpu_times):.6f}s")
+    else:
+        print("CUDA is not available. Skipping GPU test.")
 
 
 def run_performance_tests():

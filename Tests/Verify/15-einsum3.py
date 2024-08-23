@@ -3,11 +3,11 @@ import torch
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
-import BackEnd._numpy
-import BackEnd._scipy
-import BackEnd._torch
+BackEnd._config.disable_gpu()
 
-BackEnd._torch.disable_gpu()
+import BackEnd._scipy
+import BackEnd._numpy
+import BackEnd._torch
 
 numpy_einsum_ik_jk_ijk = BackEnd._numpy.einsum_ik_jk_ijk
 scipy_einsum_ik_jk_ijk = BackEnd._scipy.einsum_ik_jk_ijk

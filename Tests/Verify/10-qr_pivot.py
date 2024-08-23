@@ -1,15 +1,13 @@
-import numpy
+import numpy as np
 import torch
-
 import BackEnd._config
 
 BackEnd._config.disable_fftw()
+BackEnd._config.disable_gpu()
 
-import BackEnd._numpy
 import BackEnd._scipy
+import BackEnd._numpy
 import BackEnd._torch
-
-BackEnd._torch.disable_gpu()
 
 numpy_qr = BackEnd._numpy.qr_col_pivoting
 scipy_qr = BackEnd._scipy.qr_col_pivoting
