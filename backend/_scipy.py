@@ -1,6 +1,7 @@
 import numpy, scipy
 import backend._pyfftw as _pyfftw
 from backend._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
+from backend._malloc import __malloc
 
 if ENABLE_PYSCF_LIB:
     try:
@@ -23,6 +24,8 @@ def toNumpy(data):
         raise ValueError("Data is not a numpy array")
     return data
 
+
+malloc = __malloc
 
 # FFT #
 

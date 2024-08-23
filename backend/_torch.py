@@ -1,6 +1,7 @@
 import torch, numpy, scipy
 import backend._pyfftw as _pyfftw
 from backend._config import ENABLE_FFTW, FORCE_PYSCF_LIB
+from backend._malloc import __malloc
 
 USE_GPU = True
 FFT_CPU_USE_TORCH_ANYWAY = False
@@ -52,6 +53,23 @@ def toNumpy(data):
         return data.cpu().numpy()
     assert isinstance(data, numpy.ndarray)
     return data
+
+
+def malloc(shape, dtype, buf=None, offset=0, gpu=False):
+    if buf is None:
+        assert offset is None or offset == 0
+        return torch.empty(shape, dtype=dtype, device="cuda" if gpu else "cpu")
+    else:
+        if gpu:
+            assert buf.is_cuda
+        else:
+            assert not buf.is_cuda
+        elmtsize = buf.element_size()
+        assert offset % elmtsize == 0
+        assert dtype == buf.dtype
+        return buf.view(-1)[
+            offset // elmtsize : offset // elmtsize + numpy.prod(shape)
+        ].view(*shape)
 
 
 # FFT on cpu/gpu #

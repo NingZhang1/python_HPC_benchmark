@@ -15,10 +15,15 @@ else:
 
     backend.disable_gpu()
 
+from backend._num_threads import num_threads
+
+NUM_THREADS = num_threads()
+
 # assign python interface #
 
 _toTensor = backend.toTensor
 _toNumpy = backend.toNumpy
+_malloc = backend.malloc
 _fft = backend.fft
 _ifft = backend.ifft
 _fftn = backend.fftn

@@ -1,4 +1,5 @@
-import os, multiprocessing
+import os
+import multiprocessing
 
 MULTI_THREADING = True
 
