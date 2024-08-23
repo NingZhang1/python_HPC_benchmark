@@ -1,18 +1,18 @@
 import numpy as np
 import torch
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 import time
 
-numpy_einsum_ij_j_ij = backend._numpy.einsum_ij_j_ij
-scipy_einsum_ij_j_ij = backend._scipy.einsum_ij_j_ij
-torch_einsum_ij_j_ij = backend._torch.einsum_ij_j_ij
+numpy_einsum_ij_j_ij = BackEnd._numpy.einsum_ij_j_ij
+scipy_einsum_ij_j_ij = BackEnd._scipy.einsum_ij_j_ij
+torch_einsum_ij_j_ij = BackEnd._torch.einsum_ij_j_ij
 
 
 def generate_test_cases():

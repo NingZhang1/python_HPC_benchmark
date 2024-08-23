@@ -1,26 +1,26 @@
 import numpy as np
 import torch
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 import time
 
-numpy_index_add = backend._numpy.index_add
-scipy_index_add = backend._scipy.index_add
-torch_index_add = backend._torch.index_add
+numpy_index_add = BackEnd._numpy.index_add
+scipy_index_add = BackEnd._scipy.index_add
+torch_index_add = BackEnd._torch.index_add
 
-numpy_index_copy = backend._numpy.index_copy
-scipy_index_copy = backend._scipy.index_copy
-torch_index_copy = backend._torch.index_copy
+numpy_index_copy = BackEnd._numpy.index_copy
+scipy_index_copy = BackEnd._scipy.index_copy
+torch_index_copy = BackEnd._torch.index_copy
 
-numpy_take = backend._numpy.take
-scipy_take = backend._scipy.take
-torch_take = backend._torch.take
+numpy_take = BackEnd._numpy.take
+scipy_take = BackEnd._scipy.take
+torch_take = BackEnd._torch.take
 
 
 def measure_time(func, *args, **kwargs):

@@ -1,21 +1,21 @@
-from backend._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU
+from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU
 
 # import different backend #
 
 if USE_NUMPY:
-    import backend._numpy as backend
+    import BackEnd._numpy as backend
 elif USE_SCIPY:
-    import backend._scipy as backend
+    import BackEnd._scipy as backend
 elif USE_TORCH_GPU:
-    import backend._torch as backend
+    import BackEnd._torch as backend
 
     backend.enable_gpu()
 else:
-    import backend._torch as backend
+    import BackEnd._torch as backend
 
     backend.disable_gpu()
 
-from backend._num_threads import num_threads
+from BackEnd._num_threads import num_threads
 
 NUM_THREADS = num_threads()
 

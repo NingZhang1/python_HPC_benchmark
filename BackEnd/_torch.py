@@ -1,7 +1,7 @@
 import torch, numpy, scipy
-import backend._pyfftw as _pyfftw
-from backend._config import ENABLE_FFTW, FORCE_PYSCF_LIB
-from backend._malloc import __malloc
+import BackEnd._pyfftw as _pyfftw
+from BackEnd._config import ENABLE_FFTW, FORCE_PYSCF_LIB
+from BackEnd._malloc import __malloc
 
 USE_GPU = True
 FFT_CPU_USE_TORCH_ANYWAY = False
@@ -270,7 +270,7 @@ def _qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
 
 
 try:
-    import backend._scipy
+    import BackEnd._scipy
 
     def qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
         if A.is_cuda:
@@ -292,11 +292,11 @@ try:
             # return _qr_col_pivoting(A, tol=tol, max_rank=max_rank, mode=mode)
             a_numpy = toNumpy(A)
             if mode == "r":
-                Q, R, P = backend._scipy.qr_col_pivoting(
+                Q, R, P = BackEnd._scipy.qr_col_pivoting(
                     a_numpy, tol=tol, max_rank=max_rank, mode=mode
                 )
             else:
-                Q, R, P = backend._scipy.qr_col_pivoting(
+                Q, R, P = BackEnd._scipy.qr_col_pivoting(
                     a_numpy, tol=tol, max_rank=max_rank, mode=mode
                 )
                 Q = toTensor(Q)

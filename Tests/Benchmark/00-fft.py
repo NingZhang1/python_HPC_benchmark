@@ -1,14 +1,14 @@
 import numpy
 import time
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._pyfftw
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._pyfftw
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 
 NBUNCH = 96
 SIZE = [11, 16, 24, 30, 36, 48]
@@ -33,9 +33,9 @@ def run_tests(size):
     a = numpy.random.rand(NBUNCH, size, size, size)
 
     tests = [
-        ("NumPy FFT", backend._numpy.fftn),
-        ("SciPy FFT", backend._scipy.fftn),
-        ("pyFFTW", backend._pyfftw.fftn),
+        ("NumPy FFT", BackEnd._numpy.fftn),
+        ("SciPy FFT", BackEnd._scipy.fftn),
+        ("pyFFTW", BackEnd._pyfftw.fftn),
     ]
 
     results = {}
@@ -56,12 +56,12 @@ def run_tests(size):
 
 def run_tests_torch(size):
     a = numpy.random.rand(NBUNCH, size, size, size)
-    a = backend._torch.toTensor(a)
+    a = BackEnd._torch.toTensor(a)
 
     tests = [
-        ("torch FFT", backend._numpy.fftn),
-        # ("SciPy FFT", backend._scipy.fftn),
-        # ("pyFFTW", backend._pyfftw.fftn),
+        ("torch FFT", BackEnd._numpy.fftn),
+        # ("SciPy FFT", BackEnd._scipy.fftn),
+        # ("pyFFTW", BackEnd._pyfftw.fftn),
     ]
 
     results = {}

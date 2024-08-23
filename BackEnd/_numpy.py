@@ -1,7 +1,7 @@
 import numpy
-import backend._pyfftw as _pyfftw
-from backend._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
-from backend._malloc import __malloc
+import BackEnd._pyfftw as _pyfftw
+from BackEnd._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
+from BackEnd._malloc import __malloc
 
 if ENABLE_PYSCF_LIB:
     try:
@@ -75,28 +75,28 @@ else:
 # QR #
 
 try:
-    import backend._scipy
+    import BackEnd._scipy as _scipy
 
-    qr_col_pivoting = backend._scipy.qr_col_pivoting
+    qr_col_pivoting = _scipy.qr_col_pivoting
 
 except ImportError:
 
     try:
-        import backend._torch
+        import BackEnd._torch
 
         def qr_col_pivoting(A, tol=1e-8, max_rank=None, mode="r"):
-            A = backend._torch.toTensor(A)
-            Q, R, P = backend._torch.qr_col_pivoting(
+            A = BackEnd._torch.toTensor(A)
+            Q, R, P = BackEnd._torch.qr_col_pivoting(
                 A, tol=tol, max_rank=max_rank, mode=mode
             )
             if Q is not None:
-                Q = backend._torch.toNumpy(Q)
-            R = backend._torch.toNumpy(R)
-            P = backend._torch.toNumpy(P)
+                Q = BackEnd._torch.toNumpy(Q)
+            R = BackEnd._torch.toNumpy(R)
+            P = BackEnd._torch.toNumpy(P)
             return Q, R, P
 
     except ImportError:
-        raise ImportError("No backend available for qr with col pivoting")
+        raise ImportError("No BackEnd available for qr with col pivoting")
 
 QR_MODE_MAPPING = {
     "full": "complete",
@@ -205,7 +205,7 @@ def cholesky(a, lower=True, overwrite_a=True, out=None):
 # solve #
 
 try:
-    from backend._scipy import solve_cholesky as scipy_solve_cholesky
+    from BackEnd._scipy import solve_cholesky as scipy_solve_cholesky
 
     solve_cholesky = scipy_solve_cholesky
 

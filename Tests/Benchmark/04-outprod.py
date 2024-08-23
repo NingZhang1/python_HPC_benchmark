@@ -2,18 +2,18 @@ import numpy as np
 import torch
 import time
 import timeit
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 
-numpy_einsum_ik_jk_ijk = backend._numpy.einsum_ik_jk_ijk
-scipy_einsum_ik_jk_ijk = backend._scipy.einsum_ik_jk_ijk
-torch_einsum_ik_jk_ijk = backend._torch.einsum_ik_jk_ijk
+numpy_einsum_ik_jk_ijk = BackEnd._numpy.einsum_ik_jk_ijk
+scipy_einsum_ik_jk_ijk = BackEnd._scipy.einsum_ik_jk_ijk
+torch_einsum_ik_jk_ijk = BackEnd._torch.einsum_ik_jk_ijk
 
 
 def time_function(func, *args, number=15):

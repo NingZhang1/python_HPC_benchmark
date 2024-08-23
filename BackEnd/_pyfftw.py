@@ -1,4 +1,4 @@
-from backend._num_threads import num_threads
+from BackEnd._num_threads import num_threads
 
 try:
     import pyfftw

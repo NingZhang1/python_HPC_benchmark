@@ -1,18 +1,18 @@
 import numpy
 import torch
 import time
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 
-numpy_qr = backend._numpy.qr_col_pivoting
-scipy_qr = backend._scipy.qr_col_pivoting
-torch_qr = backend._torch.qr_col_pivoting
+numpy_qr = BackEnd._numpy.qr_col_pivoting
+scipy_qr = BackEnd._scipy.qr_col_pivoting
+torch_qr = BackEnd._torch.qr_col_pivoting
 
 
 def measure_time(func, *args):

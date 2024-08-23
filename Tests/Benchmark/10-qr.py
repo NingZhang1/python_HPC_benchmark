@@ -1,18 +1,18 @@
 import numpy
 import torch
 import time
-import backend._config
+import BackEnd._config
 
-backend._config.disable_fftw()
-import backend._numpy
-import backend._scipy
-import backend._torch
+BackEnd._config.disable_fftw()
+import BackEnd._numpy
+import BackEnd._scipy
+import BackEnd._torch
 
-backend._torch.disable_gpu()
+BackEnd._torch.disable_gpu()
 
-numpy_qr = backend._numpy.qr
-scipy_qr = backend._scipy.qr
-torch_qr = backend._torch.qr
+numpy_qr = BackEnd._numpy.qr
+scipy_qr = BackEnd._scipy.qr
+torch_qr = BackEnd._torch.qr
 
 
 def measure_time(func, *args):
