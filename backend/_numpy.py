@@ -125,3 +125,41 @@ def index_copy(A, dim, index, source):
 
 def take(a, indices, axis=None, out=None):
     return numpy.take(a, indices, axis=axis, out=out)
+
+
+# min/max/abs/norm #
+
+
+def maximum(a, axis=None, out=None):
+    return numpy.max(a, axis=axis, out=out)
+
+
+def minimum(a, axis=None, out=None):
+    return numpy.min(a, axis=axis, out=out)
+
+
+def absolute(a, out=None):
+    return numpy.abs(a, out=out)
+
+
+def Frobenius_norm(a):
+    assert a.ndim == 2
+    return numpy.linalg.norm(a)
+
+
+# special einsum #
+
+
+def einsum_ij_j_ij(a, b, out=None):
+    if out is None:
+        return a * b
+    else:
+        numpy.multiply(a, b, out=out)
+        return out
+
+
+def einsum_ik_jk_ijk(a, b, out=None):
+    if out is None:
+        return numpy.einsum("ik,jk->ijk", a, b)
+    else:
+        return numpy.einsum("ik,jk->ijk", a, b, out=out)

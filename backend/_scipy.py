@@ -102,3 +102,23 @@ from backend._numpy import take as numpy_take
 index_add = numpy_index_add
 index_copy = numpy_index_copy
 take = numpy_take
+
+# min/max/abs/norm #
+
+from backend._numpy import maximum as numpy_max
+from backend._numpy import minimum as numpy_min
+from backend._numpy import absolute as numpy_abs
+from backend._numpy import Frobenius_norm as numpy_Frobenius_norm
+
+maximum = numpy_max
+minimum = numpy_min
+absolute = numpy_abs
+Frobenius_norm = numpy_Frobenius_norm
+
+# special einsum #
+
+from backend._numpy import einsum_ij_j_ij as numpy_einsum_ij_j_ij
+from backend._numpy import einsum_ik_jk_ijk as numpy_einsum_ik_jk_ijk
+
+einsum_ij_j_ij = numpy_einsum_ij_j_ij
+einsum_ik_jk_ijk = numpy_einsum_ik_jk_ijk

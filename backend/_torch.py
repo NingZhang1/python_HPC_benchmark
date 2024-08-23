@@ -120,7 +120,7 @@ if _pyfftw.FFTW_FOUND and ENABLE_FFTW and not FFT_CPU_USE_TORCH_ANYWAY:
 
 else:
 
-    print("Using torch for FFT")
+    # print("Using torch for FFT")
 
     def rfftn(x, s=None, axes=None, overwrite_input=None, threads=None):
         return torch.rfft(x, s=s, dim=axes)
@@ -315,3 +315,52 @@ def index_copy(A, dim, index, source):
 
 def take(a, indices, axis=None, out=None):
     return torch.index_select(a, axis, indices, out=out)
+
+
+# min/max/abs/norm #
+
+
+def maximum(a, axis=None, out=None):
+    return torch.max(a, dim=axis, out=out)
+
+
+def minimum(a, axis=None, out=None):
+    return torch.min(a, dim=axis, out=out)
+
+
+def absolute(a, out=None):
+    return torch.abs(a, out=out)
+
+
+def Frobenius_norm(a):
+    assert len(a.shape) == 2
+    return torch.norm(a)
+
+
+def einsum_ij_j_ij(a, b, out=None):
+    if out is None:
+        return a * b
+    else:
+        torch.mul(a, b, out=out)
+        return out
+
+
+def einsum_ik_jk_ijk(A, B, out=None):
+
+    # Get the shapes
+
+    i, k1 = A.shape
+    j, k2 = B.shape
+    k = k1
+
+    A_broadcast = A.unsqueeze(1)  # Shape: (i, 1, k)
+    B_broadcast = B.unsqueeze(0)  # Shape: (1, j, k)
+
+    if out is None:
+        out = torch.empty((i, j, k), dtype=A.dtype, device=A.device)
+    else:
+        assert out.shape == (i, j, k), "Out tensor must have shape (i, j, k)"
+
+    torch.mul(A_broadcast, B_broadcast, out=out)
+
+    return out
