@@ -345,6 +345,15 @@ def einsum_ij_j_ij(a, b, out=None):
         return out
 
 
+def einsum_i_ij_ij(a, b, out=None):
+    a_reshaped = a.unsqueeze(1)
+    if out is None:
+        return a_reshaped * b
+    else:
+        torch.mul(a_reshaped, b, out=out)
+        return out
+
+
 def einsum_ik_jk_ijk(A, B, out=None):
 
     # Get the shapes
@@ -364,3 +373,44 @@ def einsum_ik_jk_ijk(A, B, out=None):
     torch.mul(A_broadcast, B_broadcast, out=out)
 
     return out
+
+
+# eigh #
+
+
+def eigh(a):
+    return torch.linalg.eigh(a)
+
+
+# square #
+
+
+def square(a, out=None):
+    return torch.square(a, out=out)
+
+
+def square_(a):
+    return square(a, out=a)
+
+
+# cholesky #
+
+
+def cholesky(a, lower=True, overwrite_a=True, out=None):
+    if overwrite_a:
+        return torch.linalg.cholesky(a, upper=(not lower), out=a)
+    else:
+        return torch.linalg.cholesky(a, upper=(not lower), out=out)
+
+
+# solve #
+
+
+def solve_cholesky(
+    a, b, lower=True, overwrite_a=True, overwrite_b=True, check_finite=False
+):
+    c = cholesky(a, lower=lower, overwrite_a=overwrite_a)
+    if overwrite_b:
+        return torch.linalg.solve(c, b, upper=(not lower), out=b)
+    else:
+        return torch.linalg.solve(c, b, upper=(not lower))

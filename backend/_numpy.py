@@ -158,8 +158,57 @@ def einsum_ij_j_ij(a, b, out=None):
         return out
 
 
+def einsum_i_ij_ij(a, b, out=None):
+    a_reshaped = a[:, numpy.newaxis]
+    if out is None:
+        return a_reshaped * b
+    else:
+        numpy.multiply(a_reshaped, b, out=out)
+        return out
+
+
 def einsum_ik_jk_ijk(a, b, out=None):
     if out is None:
         return numpy.einsum("ik,jk->ijk", a, b)
     else:
         return numpy.einsum("ik,jk->ijk", a, b, out=out)
+
+
+# eigh #
+
+
+def eigh(a):
+    return numpy.linalg.eigh(a)
+
+
+# square #
+
+
+def square(a, out=None):
+    return numpy.square(a, out=out)
+
+
+def square_(a):
+    return square(a, out=a)
+
+
+# cholesky #
+
+
+def cholesky(a, lower=True, overwrite_a=True, out=None):
+    return numpy.linalg.cholesky(a)
+
+
+# solve #
+
+try:
+    from backend._scipy import solve_cholesky as scipy_solve_cholesky
+
+    solve_cholesky = scipy_solve_cholesky
+
+except ImportError:
+
+    def solve_cholesky(
+        a, b, lower=True, overwrite_a=True, overwrite_b=True, check_finite=False
+    ):
+        return numpy.linalg.solve(a, b)

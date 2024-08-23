@@ -118,7 +118,46 @@ Frobenius_norm = numpy_Frobenius_norm
 # special einsum #
 
 from backend._numpy import einsum_ij_j_ij as numpy_einsum_ij_j_ij
+from backend._numpy import einsum_i_ij_ij as numpy_einsum_i_ij_ij
 from backend._numpy import einsum_ik_jk_ijk as numpy_einsum_ik_jk_ijk
+from backend._numpy import eigh as numpy_eigh
 
 einsum_ij_j_ij = numpy_einsum_ij_j_ij
 einsum_ik_jk_ijk = numpy_einsum_ik_jk_ijk
+
+# eigh #
+
+
+def eigh(a):
+    return scipy.linalg.eigh(a)
+
+
+# square #
+
+
+from backend._numpy import square as numpy_square
+from backedn._numpy import square_ as numpy_square_
+
+square = numpy_square
+square_ = numpy_square_
+
+# cholesky #
+
+
+def cholesky(a, lower=True, overwrite_a=True, out=None):
+    return scipy.linalg.cholesky(
+        a, lower=lower, overwrite_a=overwrite_a, check_finite=False
+    )
+
+
+# solve #
+
+
+def solve_cholesky(
+    a, b, lower=True, overwrite_a=True, overwrite_b=True, check_finite=False
+):
+    C = cholesky(a, lower, overwrite_a, out=None)
+    B = scipy.linalg.cho_solve(
+        (C, lower), b, overwrite_b=overwrite_b, check_finite=check_finite
+    )
+    return B
