@@ -63,7 +63,7 @@ class TestMallocImplementations(unittest.TestCase):
         print("numpy_arr_address = ", numpy_arr.__array_interface__["data"][0])
 
     def test_gpu_allocation(self):
-        
+
         if torch.cuda.is_available():
             shape = (2, 2)
 

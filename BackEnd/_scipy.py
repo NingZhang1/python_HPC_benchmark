@@ -1,7 +1,9 @@
-import numpy, scipy
+import numpy
+import scipy
 import BackEnd._pyfftw as _pyfftw
 from BackEnd._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
 from BackEnd._malloc import __malloc
+import BackEnd._numpy_shared_func as SHARED_FUNC_LIB
 
 if ENABLE_PYSCF_LIB:
     try:
@@ -10,6 +12,15 @@ if ENABLE_PYSCF_LIB:
         PYSCF_LIB_FOUND = True
     except ImportError:
         PYSCF_LIB_FOUND = False
+
+# type #
+
+INT32Ty = numpy.int32
+INT64Ty = numpy.int64
+FLOAT32Ty = numpy.float32
+FLOAT64Ty = numpy.float64
+COMPLEX64Ty = numpy.complex64
+COMPLEX128Ty = numpy.complex128
 
 # toTensor #
 
@@ -98,38 +109,23 @@ def qr(A, mode="full"):
 
 # index #
 
-
-from BackEnd._numpy import index_add as numpy_index_add
-from BackEnd._numpy import index_copy as numpy_index_copy
-from BackEnd._numpy import take as numpy_take
-
-index_add = numpy_index_add
-index_copy = numpy_index_copy
-take = numpy_take
-
+index_add = SHARED_FUNC_LIB.index_add
+index_copy = SHARED_FUNC_LIB.index_copy
+take = SHARED_FUNC_LIB.take
 
 # min/max/abs/norm #
 
-from BackEnd._numpy import maximum as numpy_max
-from BackEnd._numpy import minimum as numpy_min
-from BackEnd._numpy import absolute as numpy_abs
-from BackEnd._numpy import Frobenius_norm as numpy_Frobenius_norm
-
-maximum = numpy_max
-minimum = numpy_min
-absolute = numpy_abs
-Frobenius_norm = numpy_Frobenius_norm
+maximum = SHARED_FUNC_LIB.maximum
+minimum = SHARED_FUNC_LIB.minimum
+absolute = SHARED_FUNC_LIB.absolute
+Frobenius_norm = SHARED_FUNC_LIB.Frobenius_norm
 
 # special einsum #
 
-from BackEnd._numpy import einsum_ij_j_ij as numpy_einsum_ij_j_ij
-from BackEnd._numpy import einsum_i_ij_ij as numpy_einsum_i_ij_ij
-from BackEnd._numpy import einsum_ik_jk_ijk as numpy_einsum_ik_jk_ijk
-from BackEnd._numpy import eigh as numpy_eigh
+einsum_ij_j_ij = SHARED_FUNC_LIB.einsum_ij_j_ij
+einsum_i_ij_ij = SHARED_FUNC_LIB.einsum_i_ij_ij
+einsum_ik_jk_ijk = SHARED_FUNC_LIB.einsum_ik_jk_ijk
 
-einsum_ij_j_ij = numpy_einsum_ij_j_ij
-einsum_i_ij_ij = numpy_einsum_i_ij_ij
-einsum_ik_jk_ijk = numpy_einsum_ik_jk_ijk
 
 # eigh #
 
@@ -140,12 +136,8 @@ def eigh(a):
 
 # square #
 
-
-from BackEnd._numpy import square as numpy_square
-from BackEnd._numpy import square_ as numpy_square_
-
-square = numpy_square
-square_ = numpy_square_
+square = SHARED_FUNC_LIB.square
+square_ = SHARED_FUNC_LIB.square_
 
 # cholesky #
 

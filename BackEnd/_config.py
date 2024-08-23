@@ -79,7 +79,8 @@ USE_TORCH_GPU = 0
 
 def backend(backend="scipy"):
     backend = backend.lower()
-    global USE_SCIPY, USE_TORCH, USE_NUMPY, USE_TORCH_GPU
+    global USE_SCIPY, USE_TORCH, USE_NUMPY, USE_TORCH_GPU, USE_GPU
+    USE_GPU = 0
     if backend == "scipy":
         USE_SCIPY = 1
         USE_TORCH = 0
@@ -100,5 +101,6 @@ def backend(backend="scipy"):
         USE_TORCH = 0
         USE_NUMPY = 0
         USE_TORCH_GPU = 1
+        USE_GPU = 1
     else:
         raise ValueError("Invalid backend: {}".format(backend))

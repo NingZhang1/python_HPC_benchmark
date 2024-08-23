@@ -2,6 +2,7 @@ import numpy
 import BackEnd._pyfftw as _pyfftw
 from BackEnd._config import ENABLE_FFTW, ENABLE_PYSCF_LIB
 from BackEnd._malloc import __malloc
+import BackEnd._numpy_shared_func as SHARED_FUNC_LIB
 
 if ENABLE_PYSCF_LIB:
     try:
@@ -10,6 +11,15 @@ if ENABLE_PYSCF_LIB:
         PYSCF_LIB_FOUND = True
     except ImportError:
         PYSCF_LIB_FOUND = False
+
+# type #
+
+INT32Ty = numpy.int32
+INT64Ty = numpy.int64
+FLOAT32Ty = numpy.float32
+FLOAT64Ty = numpy.float64
+COMPLEX64Ty = numpy.complex64
+COMPLEX128Ty = numpy.complex128
 
 # toTensor #
 
@@ -79,7 +89,9 @@ try:
 
     qr_col_pivoting = _scipy.qr_col_pivoting
 
-except ImportError:
+except ValueError:
+
+    raise ImportError("No BackEnd available for qr with col pivoting")
 
     try:
         import BackEnd._torch
@@ -114,67 +126,22 @@ def qr(A, mode="complete"):
 
 # index #
 
-
-def index_add(A, dim, index, source, alpha=1):
-    A[(slice(None),) * dim + (index,)] += alpha * source
-    return A
-
-
-def index_copy(A, dim, index, source):
-    # equivalent to A[:,:,...,index,...:,...] = source
-    A[(slice(None),) * dim + (index,)] = source
-    return A
-
-
-def take(a, indices, axis=None, out=None):
-    return numpy.take(a, indices, axis=axis, out=out)
-
+index_add = SHARED_FUNC_LIB.index_add
+index_copy = SHARED_FUNC_LIB.index_copy
+take = SHARED_FUNC_LIB.take
 
 # min/max/abs/norm #
 
-
-def maximum(a, axis=None, out=None):
-    return numpy.max(a, axis=axis, out=out)
-
-
-def minimum(a, axis=None, out=None):
-    return numpy.min(a, axis=axis, out=out)
-
-
-def absolute(a, out=None):
-    return numpy.abs(a, out=out)
-
-
-def Frobenius_norm(a):
-    assert a.ndim == 2
-    return numpy.linalg.norm(a)
-
+maximum = SHARED_FUNC_LIB.maximum
+minimum = SHARED_FUNC_LIB.minimum
+absolute = SHARED_FUNC_LIB.absolute
+Frobenius_norm = SHARED_FUNC_LIB.Frobenius_norm
 
 # special einsum #
 
-
-def einsum_ij_j_ij(a, b, out=None):
-    if out is None:
-        return a * b
-    else:
-        numpy.multiply(a, b, out=out)
-        return out
-
-
-def einsum_i_ij_ij(a, b, out=None):
-    a_reshaped = a[:, numpy.newaxis]
-    if out is None:
-        return a_reshaped * b
-    else:
-        numpy.multiply(a_reshaped, b, out=out)
-        return out
-
-
-def einsum_ik_jk_ijk(a, b, out=None):
-    if out is None:
-        return numpy.einsum("ik,jk->ijk", a, b)
-    else:
-        return numpy.einsum("ik,jk->ijk", a, b, out=out)
+einsum_ij_j_ij = SHARED_FUNC_LIB.einsum_ij_j_ij
+einsum_i_ij_ij = SHARED_FUNC_LIB.einsum_i_ij_ij
+einsum_ik_jk_ijk = SHARED_FUNC_LIB.einsum_ik_jk_ijk
 
 
 # eigh #
@@ -186,14 +153,8 @@ def eigh(a):
 
 # square #
 
-
-def square(a, out=None):
-    return numpy.square(a, out=out)
-
-
-def square_(a):
-    return square(a, out=a)
-
+square = SHARED_FUNC_LIB.square
+square_ = SHARED_FUNC_LIB.square_
 
 # cholesky #
 

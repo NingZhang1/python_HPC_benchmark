@@ -1,4 +1,5 @@
-import torch, numpy, scipy
+import torch
+import numpy
 import BackEnd._pyfftw as _pyfftw
 from BackEnd._config import (
     ENABLE_FFTW,
@@ -7,7 +8,6 @@ from BackEnd._config import (
     FFT_CPU_USE_TORCH_ANYWAY,
     QR_PIVOTING_GPU_ANYWAY,
 )
-from BackEnd._malloc import __malloc
 
 
 if FORCE_PYSCF_LIB:
@@ -19,6 +19,15 @@ if FORCE_PYSCF_LIB:
         PYSCF_LIB_FOUND = False
 
 torch.set_grad_enabled(False)
+
+# type #
+
+INT32Ty = torch.int32
+INT64Ty = torch.int64
+FLOAT32Ty = torch.float32
+FLOAT64Ty = torch.float64
+COMPLEX64Ty = torch.complex64
+COMPLEX128Ty = torch.complex128
 
 # toTensor #
 
@@ -419,7 +428,6 @@ def cholesky(a, lower=True, overwrite_a=True, out=None):
 # solve #
 
 
-# NOTE: at least in my machine, no matter whether overwrite_a is True or False, it will always allocate a new tensor
 def solve_cholesky(
     a, b, lower=True, overwrite_a=True, overwrite_b=True, check_finite=False
 ):

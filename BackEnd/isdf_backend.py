@@ -1,4 +1,16 @@
-from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU
+from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU, USE_GPU
+
+assert isinstance(USE_NUMPY, int)
+assert isinstance(USE_SCIPY, int)
+assert isinstance(USE_TORCH, int)
+assert isinstance(USE_TORCH_GPU, int)
+assert isinstance(USE_GPU, int)
+assert USE_NUMPY >= 0
+assert USE_SCIPY >= 0
+assert USE_TORCH >= 0
+assert USE_TORCH_GPU >= 0
+
+assert USE_NUMPY + USE_SCIPY + USE_TORCH + USE_TORCH_GPU == 1
 
 # import different backend #
 
@@ -9,11 +21,11 @@ elif USE_SCIPY:
 elif USE_TORCH_GPU:
     import BackEnd._torch as backend
 
-    backend.enable_gpu()
+    USE_GPU = 1
 else:
     import BackEnd._torch as backend
 
-    backend.disable_gpu()
+    USE_GPU = 0
 
 from BackEnd._num_threads import num_threads
 
@@ -21,13 +33,27 @@ NUM_THREADS = num_threads()
 
 # assign python interface #
 
+INT32 = backend.INT32Ty
+INT64 = backend.INT64Ty
+FLOAT32 = backend.FLOAT32Ty
+FLOAT64 = backend.FLOAT64Ty
+COMPLEX64 = backend.COMPLEX64Ty
+COMPLEX128 = backend.COMPLEX128Ty
+ITEM_SIZE = {
+    INT32: 4,
+    INT64: 8,
+    FLOAT32: 4,
+    FLOAT64: 8,
+    COMPLEX64: 8,
+    COMPLEX128: 16,
+}
 _toTensor = backend.toTensor
 _toNumpy = backend.toNumpy
 _malloc = backend.malloc
-_fft = backend.fft
-_ifft = backend.ifft
 _fftn = backend.fftn
 _ifftn = backend.ifftn
+_rfftn = backend.rfftn
+_irfftn = backend.irfftn
 _dot = backend.dot
 _qr_col_pivoting = backend.qr_col_pivoting
 _qr = backend.qr
@@ -46,3 +72,9 @@ _square = backend.square
 _square_ = backend.square_
 _cholesky = backend.cholesky
 _solve_cholesky = backend.solve_cholesky
+
+# some simple utils use numpy's impl #
+
+import numpy
+
+_prod = numpy.prod
