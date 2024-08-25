@@ -1,4 +1,14 @@
-from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU, USE_GPU
+from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU
+from BackEnd._config import MULTI_THREADING, USE_GPU
+
+if not MULTI_THREADING:
+    import os
+
+    os.environ["OMP_NUM_THREADS"] = 1
+
+from BackEnd._num_threads import num_threads
+
+NUM_THREADS = num_threads()
 
 assert isinstance(USE_NUMPY, int)
 assert isinstance(USE_SCIPY, int)
@@ -27,12 +37,9 @@ else:
 
     USE_GPU = 0
 
-from BackEnd._num_threads import num_threads
-
-NUM_THREADS = num_threads()
-
 # assign python interface #
 
+# type system #
 INT32 = backend.INT32Ty
 INT64 = backend.INT64Ty
 FLOAT32 = backend.FLOAT32Ty
@@ -47,6 +54,8 @@ ITEM_SIZE = {
     COMPLEX64: 8,
     COMPLEX128: 16,
 }
+TENSOR = backend.TENSORTy
+# func interface #
 _toTensor = backend.toTensor
 _toNumpy = backend.toNumpy
 _malloc = backend.malloc

@@ -2,6 +2,21 @@ ENABLE_FFTW = True
 ENABLE_PYSCF_LIB = True
 FORCE_PYSCF_LIB = False
 
+# multithreading #
+
+MULTI_THREADING = True
+
+
+def enable_multi_threading():
+    global MULTI_THREADING
+    MULTI_THREADING = True
+
+
+def disable_multi_threading():
+    global MULTI_THREADING
+    MULTI_THREADING = False
+
+
 # configuration specific to torch backend #
 
 USE_GPU = True

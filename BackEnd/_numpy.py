@@ -20,6 +20,7 @@ FLOAT32Ty = numpy.float32
 FLOAT64Ty = numpy.float64
 COMPLEX64Ty = numpy.complex64
 COMPLEX128Ty = numpy.complex128
+TENSORTy = numpy.ndarray
 
 # toTensor #
 

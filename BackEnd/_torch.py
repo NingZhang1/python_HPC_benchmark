@@ -28,6 +28,7 @@ FLOAT32Ty = torch.float32
 FLOAT64Ty = torch.float64
 COMPLEX64Ty = torch.complex64
 COMPLEX128Ty = torch.complex128
+TENSORTy = torch.Tensor
 
 # toTensor #
 
