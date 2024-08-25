@@ -13,9 +13,34 @@ ToNUMPYTy = {
 }
 
 
+def is_realtype(a):
+    return numpy.issubdtype(a.dtype, numpy.floating)
+
+
+def is_complextype(a):
+    return numpy.issubdtype(a.dtype, numpy.complexfloating)
+
+
 def zeros(shape, dtype=numpy.float64, like=None, cpu=True):
-    assert cpu
+    assert cpu or cpu is None
+    if like is not None:
+        if dtype is None:
+            dtype = like.dtype
     return numpy.zeros(shape, dtype=dtype, like=like)
+
+
+def real(a, force_outofplace=False):
+    if force_outofplace:
+        return numpy.real(a).copy()
+    else:
+        return numpy.real(a)
+
+
+def imag(a, force_outofplace=False):
+    if force_outofplace:
+        return numpy.imag(a).copy()
+    else:
+        return numpy.imag(a)
 
 
 def index_add(A, dim, index, source, alpha=1):

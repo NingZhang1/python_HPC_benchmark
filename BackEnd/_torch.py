@@ -44,6 +44,15 @@ ToNUMPYTy = {
     numpy.complex128: numpy.complex128,
 }
 
+
+def is_realtype(dtype):
+    return dtype in [FLOAT32Ty, FLOAT64Ty, numpy.float32, numpy.float64]
+
+
+def is_complextype(dtype):
+    return dtype in [COMPLEX64Ty, COMPLEX128Ty, numpy.complex64, numpy.complex128]
+
+
 # toTensor #
 
 
@@ -93,6 +102,8 @@ def malloc(shape, dtype, buf=None, offset=0, gpu=False):
 
 def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=None):
     if like is not None:
+        if dtype is None:
+            dtype = like.dtype
         if isinstance(like, numpy.ndarray):
             assert cpu is None or cpu
             return numpy.zeros(shape, dtype=ToNUMPYTy[dtype], like=like)
@@ -103,6 +114,20 @@ def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=None):
             raise ValueError("like is provided on CPU but cpu is False")
         return torch.zeros(shape, dtype=dtype, device=like.device)
     return torch.zeros(shape, dtype=dtype, device="cpu" if cpu else "cuda")
+
+
+def real(a, force_outofplace=False):
+    if force_outofplace:
+        return a.real.clone()
+    else:
+        return a.real
+
+
+def imag(a, force_outofplace=False):
+    if force_outofplace:
+        return a.imag.clone()
+    else:
+        return a.imag
 
 
 # FFT on cpu/gpu #

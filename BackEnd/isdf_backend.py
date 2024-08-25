@@ -55,7 +55,12 @@ ITEM_SIZE = {
     COMPLEX128: 16,
 }
 ToNUMPYTy = backend.ToNUMPYTy
-TENSOR = backend.TENSORTy
+TENSORTy = backend.TENSORTy
+_zeros = backend.zeros
+_real = backend.real
+_imag = backend.imag
+_is_realtype = backend.is_realtype
+_is_complextype = backend.is_complextype
 # func interface #
 _toTensor = backend.toTensor
 _toNumpy = backend.toNumpy

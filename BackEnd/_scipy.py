@@ -23,6 +23,8 @@ COMPLEX64Ty = numpy.complex64
 COMPLEX128Ty = numpy.complex128
 TENSORTy = numpy.ndarray
 ToNUMPYTy = SHARED_FUNC_LIB.ToNUMPYTy
+is_realtype = SHARED_FUNC_LIB.is_realtype
+is_complextype = SHARED_FUNC_LIB.is_complextype
 
 # toTensor #
 
@@ -43,6 +45,8 @@ malloc = __malloc
 # create tensors #
 
 zeros = SHARED_FUNC_LIB.zeros
+real = SHARED_FUNC_LIB.real
+imag = SHARED_FUNC_LIB.imag
 
 # FFT #
 
