@@ -29,6 +29,20 @@ FLOAT64Ty = torch.float64
 COMPLEX64Ty = torch.complex64
 COMPLEX128Ty = torch.complex128
 TENSORTy = torch.Tensor
+ToNUMPYTy = {
+    torch.float32: numpy.float32,
+    torch.float64: numpy.float64,
+    torch.int32: numpy.int32,
+    torch.int64: numpy.int64,
+    torch.complex64: numpy.complex64,
+    torch.complex128: numpy.complex128,
+    numpy.float32: numpy.float32,
+    numpy.float64: numpy.float64,
+    numpy.int32: numpy.int32,
+    numpy.int64: numpy.int64,
+    numpy.complex64: numpy.complex64,
+    numpy.complex128: numpy.complex128,
+}
 
 # toTensor #
 
@@ -72,6 +86,23 @@ def malloc(shape, dtype, buf=None, offset=0, gpu=False):
         return buf.view(-1)[
             offset // elmtsize : offset // elmtsize + numpy.prod(shape)
         ].view(*shape)
+
+
+# create tensors #
+
+
+def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=None):
+    if like is not None:
+        if isinstance(like, numpy.ndarray):
+            assert cpu is None or cpu
+            return numpy.zeros(shape, dtype=ToNUMPYTy[dtype], like=like)
+        assert isinstance(like, torch.Tensor)
+        if like.is_cuda and cpu:
+            raise ValueError("like is provided on GPU but cpu is True")
+        if not like.is_cuda and not cpu:
+            raise ValueError("like is provided on CPU but cpu is False")
+        return torch.zeros(shape, dtype=dtype, device=like.device)
+    return torch.zeros(shape, dtype=dtype, device="cpu" if cpu else "cuda")
 
 
 # FFT on cpu/gpu #

@@ -54,6 +54,7 @@ ITEM_SIZE = {
     COMPLEX64: 8,
     COMPLEX128: 16,
 }
+ToNUMPYTy = backend.ToNUMPYTy
 TENSOR = backend.TENSORTy
 # func interface #
 _toTensor = backend.toTensor

@@ -22,6 +22,7 @@ FLOAT64Ty = numpy.float64
 COMPLEX64Ty = numpy.complex64
 COMPLEX128Ty = numpy.complex128
 TENSORTy = numpy.ndarray
+ToNUMPYTy = SHARED_FUNC_LIB.ToNUMPYTy
 
 # toTensor #
 
@@ -38,6 +39,10 @@ def toNumpy(data):
 
 
 malloc = __malloc
+
+# create tensors #
+
+zeros = SHARED_FUNC_LIB.zeros
 
 # FFT #
 

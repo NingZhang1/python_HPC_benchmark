@@ -1,4 +1,4 @@
-import numpy as np
+import numpy
 import torch
 import BackEnd._config
 

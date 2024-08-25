@@ -3,6 +3,20 @@
 
 import numpy
 
+ToNUMPYTy = {
+    numpy.float32: numpy.float32,
+    numpy.float64: numpy.float64,
+    numpy.int32: numpy.int32,
+    numpy.int64: numpy.int64,
+    numpy.complex64: numpy.complex64,
+    numpy.complex128: numpy.complex128,
+}
+
+
+def zeros(shape, dtype=numpy.float64, like=None, cpu=True):
+    assert cpu
+    return numpy.zeros(shape, dtype=dtype, like=like)
+
 
 def index_add(A, dim, index, source, alpha=1):
     A[(slice(None),) * dim + (index,)] += alpha * source
