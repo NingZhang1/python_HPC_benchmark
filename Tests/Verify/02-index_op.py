@@ -28,9 +28,16 @@ def verify_index_add(A_np, dim, index, source, alpha=1):
     source_torch = torch.from_numpy(source)
     index_torch = torch.from_numpy(index)
 
-    numpy_index_add(A_np, dim, index, source, alpha=alpha)
-    scipy_index_add(A_scipy, dim, index, source, alpha=alpha)
-    torch_index_add(A_torch, dim, index_torch, source_torch, alpha=alpha)
+    A_np2 = numpy_index_add(A_np, dim, index, source, alpha=alpha)
+    A_scipy2 = scipy_index_add(A_scipy, dim, index, source, alpha=alpha)
+    A_torch2 = torch_index_add(A_torch, dim, index_torch, source_torch, alpha=alpha)
+
+    print("address of input  A_np     = ", A_np.__array_interface__["data"][0])
+    print("address of input  A_scipy  = ", A_scipy.__array_interface__["data"][0])
+    print("address of input  A_torch  = ", A_torch.data_ptr())
+    print("address of output A_np2    = ", A_np2.__array_interface__["data"][0])
+    print("address of output A_scipy2 = ", A_scipy2.__array_interface__["data"][0])
+    print("address of output A_torch2 = ", A_torch2.data_ptr())
 
     assert np.allclose(A_np, A_scipy), "NumPy and SciPy index_add results do not match"
     assert np.allclose(
