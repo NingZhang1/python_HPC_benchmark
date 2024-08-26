@@ -1,4 +1,4 @@
-from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU
+from BackEnd._config import USE_NUMPY, USE_SCIPY, USE_TORCH, USE_TORCH_GPU, ENABLE_FFTW
 from BackEnd._config import MULTI_THREADING, USE_GPU
 
 if not MULTI_THREADING:
