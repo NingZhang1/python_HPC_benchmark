@@ -180,7 +180,7 @@ if _pyfftw.FFTW_FOUND and ENABLE_FFTW and not FFT_CPU_USE_TORCH_ANYWAY:
 
     def rfftn(x, s=None, axes=None, overwrite_input=None, threads=None, out=None):
         if x.is_cuda:
-            return torch.rfft(x, s=s, dim=axes, out=out)
+            return torch.fft.rfftn(x, s=s, dim=axes, out=out)
         else:
             return _rfftn_cpu(
                 x, s=s, axes=axes, overwrite_input=overwrite_input, threads=threads
@@ -188,7 +188,7 @@ if _pyfftw.FFTW_FOUND and ENABLE_FFTW and not FFT_CPU_USE_TORCH_ANYWAY:
 
     def irfftn(x, s=None, axes=None, overwrite_input=None, threads=None, out=None):
         if x.is_cuda:
-            return torch.irfft(x, s=s, dim=axes, out=out)
+            return torch.fft.irfftn(x, s=s, dim=axes, out=out)
         else:
             return _irfftn_cpu(
                 x, s=s, axes=axes, overwrite_input=overwrite_input, threads=threads
@@ -215,10 +215,10 @@ else:
     # print("Using torch for FFT")
 
     def rfftn(x, s=None, axes=None, overwrite_input=None, threads=None, out=None):
-        return torch.rfft(x, s=s, dim=axes, out=out)
+        return torch.fft.rfftn(x, s=s, dim=axes, out=out)
 
     def irfftn(x, s=None, axes=None, overwrite_input=None, threads=None, out=None):
-        return torch.irfft(x, s=s, dim=axes, out=out)
+        return torch.fft.irfftn(x, s=s, dim=axes, out=out)
 
     def fftn(x, s=None, axes=None, overwrite_input=None, threads=None, out=None):
         return torch.fft.fftn(x, s=s, dim=axes, out=out)
