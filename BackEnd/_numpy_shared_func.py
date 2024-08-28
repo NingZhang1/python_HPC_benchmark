@@ -70,6 +70,11 @@ def take(a, indices, axis=None, out=None):
     return numpy.take(a, indices, axis=axis, out=out)
 
 
+def clean(a):
+    a.fill(0)
+    return a
+
+
 def maximum(a, axis=None, out=None):
     return numpy.max(a, axis=axis, out=out)
 
@@ -134,6 +139,7 @@ def square(a, out=None):
 def square_(a):
     return square(a, out=a)
 
+
 def add_transpose_(a):
-    a+=a.T
+    a += a.T
     return a

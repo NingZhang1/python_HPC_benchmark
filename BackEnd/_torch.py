@@ -63,6 +63,8 @@ def toTensor(data, cpu=True):
         elif not data.is_cuda and not cpu:
             return data.cuda()
         return data
+    if isinstance(data, list):
+        return torch.tensor(data, device="cpu" if cpu else "cuda")
     assert isinstance(data, numpy.ndarray)
     if USE_GPU and not cpu:  # use GPU, copy anyway
         return torch.tensor(data, device="cuda")
@@ -75,6 +77,8 @@ def toTensor(data, cpu=True):
 def toNumpy(data):
     if isinstance(data, torch.Tensor):
         return data.cpu().numpy()
+    if isinstance(data, list):
+        return numpy.array(data)
     assert isinstance(data, numpy.ndarray)
     return data
 
@@ -100,7 +104,7 @@ def malloc(shape, dtype, buf=None, offset=0, gpu=False):
 # create tensors #
 
 
-def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=None):
+def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=True):
     if like is not None:
         if dtype is None:
             dtype = like.dtype
@@ -412,6 +416,11 @@ def take(a, indices, axis=None, out=None):
     return torch.index_select(a, axis, indices, out=out)
 
 
+def clean(a):
+    a.zero_()
+    return a
+
+
 # min/max/abs/norm #
 
 
@@ -419,14 +428,14 @@ def maximum(a, axis=None, out=None):
     if axis is None:
         assert out is None
         return torch.max(a).item()
-    return torch.max(a, dim=axis, out=out)
+    return torch.max(a, dim=axis, out=out).values
 
 
 def minimum(a, axis=None, out=None):
     if axis is None:
         assert out is None
         return torch.min(a).item()
-    return torch.min(a, dim=axis, out=out)
+    return torch.min(a, dim=axis, out=out).values
 
 
 def absolute(a, out=None):
@@ -509,9 +518,11 @@ def square(a, out=None):
 def square_(a):
     return square(a, out=a)
 
+
 def add_transpose_(a):
     a.add_(a.t().clone())
     return a
+
 
 # cholesky #
 
