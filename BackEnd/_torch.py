@@ -105,6 +105,8 @@ def malloc(shape, dtype, buf=None, offset=0, gpu=False):
 
 
 def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=True):
+    if cpu is None and like is not None:
+        cpu = not like.is_cuda
     if like is not None:
         if dtype is None:
             dtype = like.dtype
@@ -120,6 +122,7 @@ def zeros(shape, dtype=FLOAT64Ty, like=None, cpu=True):
     return torch.zeros(shape, dtype=dtype, device="cpu" if cpu else "cuda")
 
 
+
 def real(a, force_outofplace=False):
     if force_outofplace:
         return a.real.clone()
@@ -131,6 +134,8 @@ def imag(a, force_outofplace=False):
     if force_outofplace:
         return a.imag.clone()
     else:
+        if a.dtype != torch.complex64 and a.dtype != torch.complex128:
+            return zeros(a.shape, dtype=a.dtype)
         return a.imag
 
 
