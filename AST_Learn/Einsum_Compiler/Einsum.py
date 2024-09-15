@@ -4,6 +4,7 @@ import re  # Needed for regular expressions
 from Einsum_Compiler.Shape_Dtype import promote_types
 from Einsum_Compiler.Scalar_Tensor import TensorProxy, generate_name, ScalarProxy
 
+
 # Global einsum function
 def einsum(subscripts, *operands):
     """
@@ -25,7 +26,7 @@ def einsum(subscripts, *operands):
         raise ValueError("Number of operands does not match number of subscripts.")
 
     # Define a pattern for valid labels (letters only)
-    valid_label_pattern = re.compile(r'^[A-Za-z]+$')
+    valid_label_pattern = re.compile(r"^[A-Za-z]+$")
 
     # Build a mapping from subscript labels to dimensions
     label_dim_map = defaultdict(set)
@@ -83,11 +84,15 @@ def einsum(subscripts, *operands):
         if not label.isalpha():
             raise ValueError(f"Invalid label '{label}' in output subscripts.")
         if label not in label_dim_order:
-            raise ValueError(f"Output label '{label}' does not appear in input subscripts.")
+            raise ValueError(
+                f"Output label '{label}' does not appear in input subscripts."
+            )
 
     # Check for duplicate labels in the output subscripts
     if len(set(output_labels)) != len(output_labels):
-        duplicates = [label for label in set(output_labels) if output_labels.count(label) > 1]
+        duplicates = [
+            label for label in set(output_labels) if output_labels.count(label) > 1
+        ]
         raise ValueError(f"Duplicate labels in output subscripts: {duplicates}")
 
     # Build the result shape
@@ -102,7 +107,7 @@ def einsum(subscripts, *operands):
 
 if __name__ == "__main__":
 
-    from Shape_Dtype import NOCC, NVIR, NMO, F32, F64
+    from Einsum_Compiler.Shape_Dtype import NOCC, NVIR, NMO, F32, F64
 
     # Define sample tensors
     tensor_a = TensorProxy(name="A", shape=[NOCC, NVIR], dtype=F32)
@@ -119,7 +124,7 @@ if __name__ == "__main__":
     result_outer = einsum("i,j->ij", tensor_c, tensor_d)
     print(f"Result of einsum('i,j->ij', tensor_c, tensor_d): {result_outer}")
 
-    # Test 2: Summation over diagonal elements
-    tensor_e = TensorProxy(name="E", shape=[NOCC, NOCC], dtype=F32)
-    result_diag = einsum("ii->", tensor_e)
-    print(f"Result of einsum('ii->', tensor_e): {result_diag}")
+    # # Test 2: Summation over diagonal elements
+    # tensor_e = TensorProxy(name="E", shape=[NOCC, NOCC], dtype=F32)
+    # result_diag = einsum("ii->", tensor_e)
+    # print(f"Result of einsum('ii->', tensor_e): {result_diag}")

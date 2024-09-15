@@ -62,10 +62,10 @@ def promote_types(t1, t2):
     """
     Determine the resulting dtype when combining two dtypes.
     """
-    
+
     if t1 not in [F32, F64, Z64, Z128] or t2 not in [F32, F64, Z64, Z128]:
         raise TypeError("Invalid dtype")
-    
+
     kind1 = t1.kind
     kind2 = t2.kind
     total_prec1 = t1.precision

@@ -1,4 +1,4 @@
-from Einsum_Compiler.Shape_Dtype import ShapeProxy, DtypeProxy
+from Einsum_Compiler.Shape_Dtype import ShapeProxy, DtypeProxy, promote_types
 
 # Global variable for controlling the naming of new tensors and scalars
 NAME_COUNTER = 0
@@ -12,7 +12,7 @@ def generate_name(prefix="%"):
 
 # Scalar proxy
 class ScalarProxy:
-    def __init__(self, dtype, name=None):
+    def __init__(self, name=None, dtype=None):
         assert issubclass(dtype, DtypeProxy)
         self.dtype = dtype
         self.name = name if name else generate_name()
@@ -282,10 +282,11 @@ class TensorProxy:
         shape_str = ", ".join([s.__name__ for s in self.shape])
         return f"TensorProxy(name={self.name}, shape=[{shape_str}], dtype={self.dtype.__name__})"
 
+
 if __name__ == "__main__":
-    
-    from Shape_Dtype import NOCC, NVIR, NMO, F32, F64, promote_types
-    
+
+    from Einsum_Compiler.Shape_Dtype import NOCC, NVIR, NMO, F32, F64, promote_types
+
     # Test ScalarProxy
     scalar_a = ScalarProxy(dtype=F32, name="alpha")
     scalar_b = ScalarProxy(dtype=F64, name="beta")

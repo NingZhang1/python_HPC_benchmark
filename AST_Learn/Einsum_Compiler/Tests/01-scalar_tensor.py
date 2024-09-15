@@ -162,7 +162,7 @@ class TestInitializationErrors(unittest.TestCase):
 
 class TestPromoteTypesErrors(unittest.TestCase):
     def test_promote_types_invalid_dtype(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(TypeError):
             result = promote_types(
                 F32, None
             )  # NoneType does not have required attributes
